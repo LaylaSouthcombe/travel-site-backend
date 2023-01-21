@@ -5,11 +5,13 @@ class article {
         this.id = data.id
         this.title = data.title
         this.body = data.body
-        this.views = data.views
         this.city = data.city
         this.country = data.country
         this.continent = data.continent
         this.trip_categories = data.trip_categories
+        this.keywords = data.keywords
+        this.hour_24_views = data.hour_24_views
+        this.all_time_views = data.all_time_views
     }
     //gets all the articles
     static get all() {
