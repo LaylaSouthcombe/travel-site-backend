@@ -19,7 +19,7 @@ class article {
         return new Promise (async (resolve, reject) => {
             try {
                 const articlesData = await db.query(`SELECT * FROM articles ORDER BY RANDOM ();`)
-                    const articles = articlesData.rows.map(d => new article(d))
+                const articles = articlesData.rows.map(d => new article(d))
                 resolve(articles);
             } catch (err) {
                 reject("Error retrieving articles")
@@ -140,6 +140,7 @@ class article {
             try {
                 let articleData = await db.query(`SELECT * FROM articles WHERE id = $1;`, [ parseInt(id) ]); 
                 let foundArticle = new article(articleData.rows[0]);
+                await db.query(`UPDATE articles SET hour_24_views = ${foundArticle.hour_24_views + 1}, all_time_views = ${foundArticle.all_time_views + 1} WHERE id = ${id};`)
                 resolve (foundArticle);
             } catch (err) {
                 reject('Article not found');
