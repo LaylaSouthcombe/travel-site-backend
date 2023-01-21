@@ -10,15 +10,16 @@ class article {
         this.continent = data.continent
         this.trip_categories = data.trip_categories
         this.keywords = data.keywords
+        this.published_date = data.published_date
         this.hour_24_views = data.hour_24_views
         this.all_time_views = data.all_time_views
     }
     //gets all the articles
-    static get all() {
+    static async getAllArticles(){
         return new Promise (async (resolve, reject) => {
             try {
-                const articlesData = await db.query(`SELECT * FROM articles;`)
-                const articles = articlesData.rows.map(d => new article(d))
+                const articlesData = await db.query(`SELECT * FROM articles ORDER BY RANDOM ();`)
+                    const articles = articlesData.rows.map(d => new article(d))
                 resolve(articles);
             } catch (err) {
                 reject("Error retrieving articles")
@@ -26,10 +27,10 @@ class article {
         })
     }
     //creates a new article
-    static async createNewArticle({title, body, views, city, country, continent, trip_categories}){
+    static async createNewArticle({title, body, city, country, continent, trip_categories, keywords}){
         return new Promise (async (resolve, reject) => {
             try {
-                let newArticle = await db.query(`INSERT INTO articles (title, body, views, city, country, continent, trip_categories) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;`, [ title, body, views, city, country, continent, trip_categories])
+                let newArticle = await db.query(`INSERT INTO articles (title, body, city, country, continent, trip_categories, keywords, hour_24_views, all_time_views) VALUES ($1, $2, $3, $4, $5, $6, $7, 0, 0) RETURNING *;`, [ title, body, city, country, continent, trip_categories, keywords])
                 resolve(newArticle.rows[0])
             }catch(err){
                 reject("Error creating new article");
@@ -76,7 +77,7 @@ class article {
     static showCategoryArticles(category) {
         return new Promise (async (resolve, reject) => {
             try {
-                let articlesData = await db.query(`SELECT * FROM articles WHERE trip_categories ILIKE '%${category}%';`); 
+                let articlesData = await db.query(`SELECT * FROM articles WHERE trip_categories ILIKE '%${category}%' OR keywords ILIKE '%${category}%';`); 
                 const articles = articlesData.rows.map(d => new article(d))
                 resolve(articles);
             } catch (err) {
@@ -90,7 +91,7 @@ class article {
             try {
                 let articleIds = []
                 let articlesSearchResults = []
-                let searchAreas = ['title', 'city', 'country',   'continent', 'trip_categories', 'body']
+                let searchAreas = ['title', 'city', 'country',   'continent', 'trip_categories', 'keywords', 'body']
                 const searchDbForTerm = async (searchArea) => {
                    let articlesData = await db.query(`SELECT * FROM articles WHERE ${searchArea} ILIKE '%${searchTerm}%'`); 
                     for(let i = 0; i < articlesData.rows.length; i++){
@@ -109,18 +110,18 @@ class article {
             }
         });
     }
-    //not done - add in code to search for articles with highest views in last 24 hours
-    // static showTrendingArticles(id) {
-    //     return new Promise (async (resolve, reject) => {
-    //         try {
-    //             let articleData = await db.query(`SELECT * FROM articles WHERE id = $1;`, [ id ]); 
-    //             let articles = new article(articleData.rows[0]);
-    //             resolve (articles);
-    //         } catch (err) {
-    //             reject('article not found');
-    //         }
-    //     });
-    // }
+    //search for articles with highest views in last 24 hours
+    static showTrendingArticles() {
+        return new Promise (async (resolve, reject) => {
+            try {
+                let articleData = await db.query(`SELECT * FROM articles ORDER BY hour_24_views DESC;`); 
+                let articles = new article(articleData.rows[0]);
+                resolve (articles);
+            } catch (err) {
+                reject('Trending articles not found');
+            }
+        });
+    }
     //not done - add in code that finds similar posts to a users views, but if no views show random posts in top 100 viewed today
     // static showSuggestedArticles(id) {
     //     return new Promise (async (resolve, reject) => {

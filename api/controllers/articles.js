@@ -13,7 +13,7 @@ async function showSpecificArticle(req, res) {
 // all articles show route
 async function showAllArticles(req, res) {
     try {
-        const article = await Article.all
+        const article = await Article.getAllArticles()
         res.status(200).json(article)
     } catch (err) {
         res.status(400).send({err})
@@ -78,14 +78,14 @@ async function searchArticles(req, res) {
     }
 }
 //show trending articles
-// async function showTrendingArticles(req, res) {
-//     try {
-//         const article = await article.showTrendingArticles()
-//         res.status(200).json(article)
-//     } catch (err) {
-//         res.status(400).send({err})
-//     }
-// }
+async function showTrendingArticles(req, res) {
+    try {
+        const article = await article.showTrendingArticles()
+        res.status(200).json(article)
+    } catch (err) {
+        res.status(400).send({err})
+    }
+}
 //show suggested articles for a user
 // async function showSuggestedArticles(req, res) {
 //     try {
@@ -97,6 +97,6 @@ async function searchArticles(req, res) {
 // }
 
 module.exports = {showSpecificArticle,showAllArticles,createNewArticle,showCityArticles,showCountryArticles,showContinentArticles,showCategoryArticles,searchArticles,
-    // showTrendingArticles,
+    showTrendingArticles
     // showSuggestedArticles
 };
