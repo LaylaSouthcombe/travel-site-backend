@@ -2,7 +2,7 @@ const Article = require('../models/Article')
                     
 //show specific article
 async function showSpecificArticle(req, res) {
-    try {
+    try {   
         const article = await Article.findById(req.params.id)
         res.status(200).json(article)   
     } catch (err) {
@@ -58,6 +58,7 @@ async function showContinentArticles(req, res) {
         res.status(400).send({err})
     }
 }
+
 //show articles for a category
 async function showCategoryArticles(req, res) {
     try {
@@ -67,6 +68,16 @@ async function showCategoryArticles(req, res) {
         res.status(400).send({err})
     }
 }
+
+async function showQueryArticles(req, res) {
+    try {
+        const articles = await Article.showQueryArticles(JSON.parse(req.headers.query))
+        res.status(200).json(articles)
+    } catch (err) {
+        res.status(400).send({err})
+    }
+}
+
 
 //article search results
 async function searchArticles(req, res) {
@@ -80,8 +91,8 @@ async function searchArticles(req, res) {
 //show trending articles
 async function showTrendingArticles(req, res) {
     try {
-        const article = await article.showTrendingArticles()
-        res.status(200).json(article)
+        const articles = await Article.showTrendingArticles()
+        res.status(200).json(articles)
     } catch (err) {
         res.status(400).send({err})
     }
@@ -97,6 +108,5 @@ async function showTrendingArticles(req, res) {
 // }
 
 module.exports = {showSpecificArticle,showAllArticles,createNewArticle,showCityArticles,showCountryArticles,showContinentArticles,showCategoryArticles,searchArticles,
-    showTrendingArticles
+    showTrendingArticles, showQueryArticles};
     // showSuggestedArticles
-};
