@@ -19,6 +19,7 @@ async function showAllArticles(req, res) {
         res.status(400).send({err})
     }
 }
+
 //create new article
 async function createNewArticle(req, res) {
     try {
@@ -78,7 +79,6 @@ async function showQueryArticles(req, res) {
     }
 }
 
-
 //article search results
 async function searchArticles(req, res) {
     try {
@@ -88,6 +88,7 @@ async function searchArticles(req, res) {
         res.status(400).send({err})
     }
 }
+
 //show trending articles
 async function showTrendingArticles(req, res) {
     try {
@@ -97,6 +98,7 @@ async function showTrendingArticles(req, res) {
         res.status(400).send({err})
     }
 }
+
 //show suggested articles for a user
 // async function showSuggestedArticles(req, res) {
 //     try {

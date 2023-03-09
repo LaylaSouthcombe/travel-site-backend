@@ -32,7 +32,7 @@ class article {
     static async createNewArticle({title, body, city, country, continent, trip_categories, keywords, feature_img_url, feature_img_html}){
         return new Promise (async (resolve, reject) => {
             try {
-                let newArticle = await db.query(`INSERT INTO articles (title, body, city, country, continent, trip_categories, keywords, hour_24_views, all_time_views, feature_img_url) VALUES ($1, $2, $3, $4, $5, $6, $7, 0, 0, $8) RETURNING *;`, [ title, body, city, country, continent, trip_categories, keywords, feature_img_url, feature_img_html])
+                let newArticle = await db.query(`INSERT INTO articles (title, body, city, country, continent, trip_categories, keywords, hour_24_views, all_time_views, feature_img_url, feature_img_html) VALUES ($1, $2, $3, $4, $5, $6, $7, 0, 0, $8, $9) RETURNING *;`, [ title, body, city, country, continent, trip_categories, keywords, feature_img_url, feature_img_html])
                 resolve(newArticle.rows[0])
             }catch(err){
                 reject("Error creating new article");
