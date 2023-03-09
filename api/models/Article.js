@@ -43,7 +43,7 @@ class article {
     static showCityArticles(city) {
         return new Promise (async (resolve, reject) => {
             try {
-                let articlesData = await db.query(`SELECT * FROM articles WHERE city ILIKE $1;`, [ city ]); 
+                let articlesData = await db.query(`SELECT * FROM articles WHERE city ILIKE '%${city}%';`); 
                 const articles = articlesData.rows.map(d => new article(d))
                 resolve(articles);
             } catch (err) {
@@ -55,7 +55,7 @@ class article {
     static showCountryArticles(country) {
         return new Promise (async (resolve, reject) => {
             try {
-                let articlesData = await db.query(`SELECT * FROM articles WHERE country ILIKE $1;`, [ country ]); 
+                let articlesData = await db.query(`SELECT * FROM articles WHERE country ILIKE '%${country}%';`); 
                 const articles = articlesData.rows.map(d => new article(d))
                 resolve(articles);
             } catch (err) {
@@ -67,7 +67,7 @@ class article {
     static showContinentArticles(continent) {
         return new Promise (async (resolve, reject) => {
             try {
-                let articlesData = await db.query(`SELECT * FROM articles WHERE continent ILIKE $1;`, [ continent ]); 
+                let articlesData = await db.query(`SELECT * FROM articles WHERE continent ILIKE '%${continent}%';`); 
                 const articles = articlesData.rows.map(d => new article(d))
                 resolve(articles);
             } catch (err) {
@@ -140,7 +140,7 @@ class article {
             try {
                 let articleIds = []
                 let articlesSearchResults = []
-                let searchAreas = ['title', 'city', 'country',   'continent', 'trip_categories', 'keywords', 'body']
+                let searchAreas = ['title', 'city', 'country', 'continent', 'trip_categories', 'keywords', 'body']
                 const searchDbForTerm = async (searchArea) => {
                    let articlesData = await db.query(`SELECT * FROM articles WHERE ${searchArea} ILIKE '%${searchTerm}%'`); 
                     for(let i = 0; i < articlesData.rows.length; i++){
