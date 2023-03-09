@@ -13,7 +13,7 @@ class article {
         this.published_date = data.published_date
         this.hour_24_views = data.hour_24_views
         this.all_time_views = data.all_time_views
-        this.feature_img_id = data.feature_img_id
+        this.feature_img_url = data.feature_img_url
         this.feature_img_html = data.feature_img_html
     }
     //gets all the articles
@@ -29,10 +29,10 @@ class article {
         })
     }
     //creates a new article
-    static async createNewArticle({title, body, city, country, continent, trip_categories, keywords, feature_img_id, feature_img_html}){
+    static async createNewArticle({title, body, city, country, continent, trip_categories, keywords, feature_img_url, feature_img_html}){
         return new Promise (async (resolve, reject) => {
             try {
-                let newArticle = await db.query(`INSERT INTO articles (title, body, city, country, continent, trip_categories, keywords, hour_24_views, all_time_views, feature_img_id) VALUES ($1, $2, $3, $4, $5, $6, $7, 0, 0, $8) RETURNING *;`, [ title, body, city, country, continent, trip_categories, keywords, feature_img_id, feature_img_html])
+                let newArticle = await db.query(`INSERT INTO articles (title, body, city, country, continent, trip_categories, keywords, hour_24_views, all_time_views, feature_img_url) VALUES ($1, $2, $3, $4, $5, $6, $7, 0, 0, $8) RETURNING *;`, [ title, body, city, country, continent, trip_categories, keywords, feature_img_url, feature_img_html])
                 resolve(newArticle.rows[0])
             }catch(err){
                 reject("Error creating new article");
