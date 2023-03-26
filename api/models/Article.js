@@ -1,4 +1,6 @@
 const db = require ('../dbConfig/init')
+const { removeStopwords } = require('stopword')
+
 
 class article {
     constructor(data){
@@ -13,8 +15,9 @@ class article {
         this.published_date = data.published_date
         this.hour_24_views = data.hour_24_views
         this.all_time_views = data.all_time_views
-        this.feature_img_url = data.feature_img_url
         this.feature_img_html = data.feature_img_html
+        this.feature_img_base64 = data.feature_img_base64
+        this.feature_img_url = data.feature_img_url
     }
     //gets all the articles
     static async getAllArticles(){
@@ -29,10 +32,11 @@ class article {
         })
     }
     //creates a new article
-    static async createNewArticle({title, body, city, country, continent, trip_categories, keywords, feature_img_url, feature_img_html}){
+    static async createNewArticle({title, body, city, country, continent, trip_categories, keywords, feature_img_html, feature_img_base64, feature_img_url}){
         return new Promise (async (resolve, reject) => {
             try {
-                let newArticle = await db.query(`INSERT INTO articles (title, body, city, country, continent, trip_categories, keywords, hour_24_views, all_time_views, feature_img_url, feature_img_html) VALUES ($1, $2, $3, $4, $5, $6, $7, 0, 0, $8, $9) RETURNING *;`, [ title, body, city, country, continent, trip_categories, keywords, feature_img_url, feature_img_html])
+                let newArticle = await db.query(`INSERT INTO articles (title, body, city, country, continent, trip_categories, keywords, hour_24_views, all_time_views, feature_img_html, feature_img_base64, feature_img_url) VALUES ($1, $2, $3, $4, $5, $6, $7, 0, 0, $8, $9, $10) RETURNING *;`, [ title, body, city, country, continent, trip_categories, keywords, feature_img_html, feature_img_base64, feature_img_url])
+                console.log(newArticle.rows[0])
                 resolve(newArticle.rows[0])
             }catch(err){
                 reject("Error creating new article");
@@ -107,7 +111,7 @@ class article {
                 }
                 let articleIds = []
                 let articlesSearchResults = []
-
+                
                 let searchQuery = ''
                 
                 for(let i = 0; i < searchAreas.length; i++){
@@ -116,18 +120,16 @@ class article {
                         searchQuery += ' AND'
                     }
                 }
-                
-                console.log(searchQuery.replace("category", "trip_categories"))
 
-                   let articlesData = await db.query(`SELECT * FROM articles WHERE${searchQuery.replace("category", "trip_categories")}`); 
+                let articlesData = await db.query(`SELECT * FROM articles WHERE${searchQuery.replace("category", "trip_categories")}`); 
 
-                    for(let i = 0; i < articlesData.rows.length; i++){
-                        if(!articleIds.includes(articlesData.rows[i].id)){
-                            articlesSearchResults.push(articlesData.rows[i])
-                            articleIds.push(articlesData.rows[i].id) 
-                        }
+                for(let i = 0; i < articlesData.rows.length; i++){
+                    if(!articleIds.includes(articlesData.rows[i].id)){
+                        articlesSearchResults.push(articlesData.rows[i])
+                        articleIds.push(articlesData.rows[i].id) 
                     }
-                    console.log(articlesSearchResults)
+                }
+                
                 resolve(articlesSearchResults);
             } catch (err) {
                 reject('Could not retrieve articles for that search term');
@@ -138,21 +140,32 @@ class article {
     static searchArticles(searchTerm) {
         return new Promise (async (resolve, reject) => {
             try {
-                let articleIds = []
                 let articlesSearchResults = []
-                let searchAreas = ['title', 'city', 'country', 'continent', 'trip_categories', 'keywords', 'body']
-                const searchDbForTerm = async (searchArea) => {
-                   let articlesData = await db.query(`SELECT * FROM articles WHERE ${searchArea} ILIKE '%${searchTerm}%'`); 
-                    for(let i = 0; i < articlesData.rows.length; i++){
-                        if(!articleIds.includes(articlesData.rows[i].id)){
-                            articlesSearchResults.push(articlesData.rows[i])
-                            articleIds.push(articlesData.rows[i].id) 
+                    let splitSearchQuery = searchTerm.replace(/"/g, "").split(' ')
+                    let searchArrayWithoutStopWords = removeStopwords(splitSearchQuery)
+                    const generateSQLQuery = (searchArray) => {
+                        let sqlQueryArray = []
+                        for(let i = 0; i < searchArray.length; i++){
+                            sqlQueryArray.push(`body ILIKE '%${searchArray[i]}%'`)
+                            if(i !== searchArray.length - 1){
+                                sqlQueryArray.push('OR')
+                            }
                         }
+                        return sqlQueryArray.join(" ")
                     }
-                }
-                for(let i = 0; i < searchAreas.length; i++){
-                    await searchDbForTerm(searchAreas[i])
-                }
+                    let sqlQuery = generateSQLQuery(searchArrayWithoutStopWords)
+                    let articlesData = await db.query(`SELECT * FROM articles WHERE ${sqlQuery}`);
+                    for(let i = 0; i < articlesData.rows.length; i++){
+                        let numberOfWordsBodyContains = 0
+                        for(let j = 0; j < searchArrayWithoutStopWords.length; j++){
+                            if(articlesData.rows[i].body.toLowerCase().includes(searchArrayWithoutStopWords[j].toLowerCase())){
+                                numberOfWordsBodyContains += 1
+                            }
+                        }
+                        articlesData.rows[i].numberOfWordsBodyContains = numberOfWordsBodyContains
+                        articlesSearchResults.push(articlesData.rows[i])
+                    }
+                articlesSearchResults.sort((a,b) => b.numberOfWordsBodyContains - a.numberOfWordsBodyContains);
                 resolve(articlesSearchResults);
             } catch (err) {
                 reject('Could not retrieve articles for that search term');

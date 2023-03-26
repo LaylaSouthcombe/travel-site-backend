@@ -12,7 +12,7 @@ router.get('/country/:country', articlesController.showCountryArticles);
 router.get('/continent/:continent', articlesController.showContinentArticles);
 router.get('/category/:category', articlesController.showCategoryArticles);
 router.get('/queryterm', articlesController.showQueryArticles);
-router.get('/search/:searchterm', articlesController.searchArticles);
+router.get('/search', articlesController.searchArticles);
 router.get('/trending', articlesController.showTrendingArticles);
 // router.get('/suggested', articlesController.showSuggestedArticles);
 

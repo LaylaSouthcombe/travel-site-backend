@@ -82,7 +82,8 @@ async function showQueryArticles(req, res) {
 //article search results
 async function searchArticles(req, res) {
     try {
-        const article = await Article.searchArticles(req.params.searchterm)
+        console.log(req.headers.query)
+        const article = await Article.searchArticles(req.headers.query)
         res.status(200).json(article)
     } catch (err) {
         res.status(400).send({err})
