@@ -10,13 +10,12 @@ class article {
         this.city = data.city
         this.country = data.country
         this.continent = data.continent
-        this.trip_categories = data.trip_categories
+        this.article_categories = data.article_categories
         this.keywords = data.keywords
         this.published_date = data.published_date
         this.hour_24_views = data.hour_24_views
         this.all_time_views = data.all_time_views
         this.feature_img_html = data.feature_img_html
-        this.feature_img_base64 = data.feature_img_base64
         this.feature_img_url = data.feature_img_url
     }
     //gets all the articles
@@ -32,10 +31,10 @@ class article {
         })
     }
     //creates a new article
-    static async createNewArticle({title, body, city, country, continent, trip_categories, keywords, feature_img_html, feature_img_base64, feature_img_url}){
+    static async createNewArticle({title, body, city, country, continent, article_categories, keywords, feature_img_html, feature_img_url}){
         return new Promise (async (resolve, reject) => {
             try {
-                let newArticle = await db.query(`INSERT INTO articles (title, body, city, country, continent, trip_categories, keywords, hour_24_views, all_time_views, feature_img_html, feature_img_base64, feature_img_url) VALUES ($1, $2, $3, $4, $5, $6, $7, 0, 0, $8, $9, $10) RETURNING *;`, [ title, body, city, country, continent, trip_categories, keywords, feature_img_html, feature_img_base64, feature_img_url])
+                let newArticle = await db.query(`INSERT INTO articles (title, body, city, country, continent, article_categories, keywords, hour_24_views, all_time_views, feature_img_html, feature_img_url) VALUES ($1, $2, $3, $4, $5, $6, $7, 0, 0, $8, $9) RETURNING *;`, [ title, body, city, country, continent, article_categories, keywords, feature_img_html, feature_img_url])
                 console.log(newArticle.rows[0])
                 resolve(newArticle.rows[0])
             }catch(err){
@@ -83,7 +82,7 @@ class article {
     static showCategoryArticles(category) {
         return new Promise (async (resolve, reject) => {
             try {
-                let articlesData = await db.query(`SELECT * FROM articles WHERE trip_categories ILIKE '%${category}%' OR keywords ILIKE '%${category}%';`); 
+                let articlesData = await db.query(`SELECT * FROM articles WHERE article_categories ILIKE '%${category}%' OR keywords ILIKE '%${category}%';`); 
                 const articles = articlesData.rows.map(d => new article(d))
                 resolve(articles);
             } catch (err) {
@@ -121,7 +120,7 @@ class article {
                     }
                 }
 
-                let articlesData = await db.query(`SELECT * FROM articles WHERE${searchQuery.replace("category", "trip_categories")}`); 
+                let articlesData = await db.query(`SELECT * FROM articles WHERE${searchQuery.replace("category", "article_categories")}`); 
 
                 for(let i = 0; i < articlesData.rows.length; i++){
                     if(!articleIds.includes(articlesData.rows[i].id)){
@@ -129,7 +128,7 @@ class article {
                         articleIds.push(articlesData.rows[i].id) 
                     }
                 }
-                
+
                 resolve(articlesSearchResults);
             } catch (err) {
                 reject('Could not retrieve articles for that search term');
