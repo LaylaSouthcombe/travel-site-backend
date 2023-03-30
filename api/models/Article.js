@@ -175,7 +175,7 @@ class article {
     static showTrendingArticles() {
         return new Promise (async (resolve, reject) => {
             try {
-                let articleData = await db.query(`SELECT * FROM articles ORDER BY hour_24_views DESC;`); 
+                let articleData = await db.query(`SELECT * FROM articles ORDER BY hour_24_views DESC LIMI 4;`); 
                 let articles = articleData.rows.map(x => new article(x));
                 resolve (articles);
             } catch (err) {
@@ -187,7 +187,7 @@ class article {
     // static showSuggestedArticles(id) {
     //     return new Promise (async (resolve, reject) => {
     //         try {
-    //             let articleData = await db.query(`SELECT * FROM articles WHERE id = $1;`, [ id ]); 
+    //             let articleData = await db.query(`SELECT * FROM articles WHERE id = $1 LIMIT 4;`, [ id ]); 
     //             let articles = new article(articleData.rows[0]);
     //             resolve (articles);
     //         } catch (err) {
