@@ -175,7 +175,7 @@ class article {
     static showTrendingArticles() {
         return new Promise (async (resolve, reject) => {
             try {
-                let articleData = await db.query(`SELECT * FROM articles ORDER BY hour_24_views DESC LIMI 4;`); 
+                let articleData = await db.query(`SELECT * FROM articles ORDER BY hour_24_views DESC LIMIT 4;`); 
                 let articles = articleData.rows.map(x => new article(x));
                 resolve (articles);
             } catch (err) {
