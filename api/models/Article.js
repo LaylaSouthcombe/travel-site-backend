@@ -10,7 +10,7 @@ class article {
         this.city = data.city
         this.country = data.country
         this.continent = data.continent
-        this.article_categories = data.article_categories
+        this.article_category = data.article_category
         this.keywords = data.keywords
         this.published_date = data.published_date
         this.hour_24_views = data.hour_24_views
@@ -18,6 +18,7 @@ class article {
         this.feature_img_html = data.feature_img_html
         this.feature_img_url = data.feature_img_url
     }
+
     //gets all the articles
     static async getAllArticles(){
         return new Promise (async (resolve, reject) => {
@@ -31,10 +32,10 @@ class article {
         })
     }
     //creates a new article
-    static async createNewArticle({title, body, city, country, continent, article_categories, keywords, feature_img_html, feature_img_url}){
+    static async createNewArticle({title, body, city, country, continent, article_category, keywords, feature_img_html, feature_img_url}){
         return new Promise (async (resolve, reject) => {
             try {
-                let newArticle = await db.query(`INSERT INTO articles (title, body, city, country, continent, article_categories, keywords, hour_24_views, all_time_views, feature_img_html, feature_img_url) VALUES ($1, $2, $3, $4, $5, $6, $7, 0, 0, $8, $9) RETURNING *;`, [ title, body, city, country, continent, article_categories, keywords, feature_img_html, feature_img_url])
+                let newArticle = await db.query(`INSERT INTO articles (title, body, city, country, continent, article_category, keywords, hour_24_views, all_time_views, feature_img_html, feature_img_url) VALUES ($1, $2, $3, $4, $5, $6, $7, 0, 0, $8, $9) RETURNING *;`, [ title, body, city, country, continent, article_category, keywords, feature_img_html, feature_img_url])
                 console.log(newArticle.rows[0])
                 resolve(newArticle.rows[0])
             }catch(err){
@@ -82,9 +83,29 @@ class article {
     static showCategoryArticles(category) {
         return new Promise (async (resolve, reject) => {
             try {
-                let articlesData = await db.query(`SELECT * FROM articles WHERE article_categories ILIKE '%${category}%' OR keywords ILIKE '%${category}%';`); 
+                let articlesData = await db.query(`SELECT * FROM articles WHERE article_category ILIKE '%${category}%' ORDER BY hour_24_views DESC;`); 
                 const articles = articlesData.rows.map(d => new article(d))
                 resolve(articles);
+            } catch (err) {
+                reject('Could not retrieve articles for that category');
+            }
+        });
+    }
+    //shows top articles in each category
+    static showTopCategorysArticles() {
+        return new Promise (async (resolve, reject) => {
+            try {
+                let categories = ["Relaxation", "Luxury", "Nature", "Food", "City Break", "Budget Friendly", "Art & Culture", "Adventure"]
+                let articlesObject = {}
+                const getDbArticles = async (category) => {
+                    let returnedArticles = await db.query(`SELECT * FROM articles WHERE article_category ILIKE '%${category}%' ORDER BY hour_24_views DESC LIMIT 4;`);
+                    articlesObject[category] = returnedArticles.rows.map(d => new article(d))
+                }
+                categories.forEach(category => {
+                    getDbArticles(category)
+                })
+                console.log(articlesObject)
+                resolve(articlesObject);
             } catch (err) {
                 reject('Could not retrieve articles for that category');
             }
@@ -120,7 +141,7 @@ class article {
                     }
                 }
 
-                let articlesData = await db.query(`SELECT * FROM articles WHERE${searchQuery.replace("category", "article_categories")}`); 
+                let articlesData = await db.query(`SELECT * FROM articles WHERE${searchQuery.replace("category", "article_category")}`); 
 
                 for(let i = 0; i < articlesData.rows.length; i++){
                     if(!articleIds.includes(articlesData.rows[i].id)){

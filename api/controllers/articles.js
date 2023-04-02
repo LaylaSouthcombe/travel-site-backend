@@ -70,6 +70,16 @@ async function showCategoryArticles(req, res) {
     }
 }
 
+//show top articles for all categories
+async function showTopCategorysArticles(req, res) {
+    try {
+        const articles = await Article.showTopCategorysArticles()
+        res.status(200).json(articles)
+    } catch (err) {
+        res.status(400).send({err})
+    }
+}
+
 async function showQueryArticles(req, res) {
     try {
         const articles = await Article.showQueryArticles(JSON.parse(req.headers.query))
@@ -111,5 +121,5 @@ async function showTrendingArticles(req, res) {
 // }
 
 module.exports = {showSpecificArticle,showAllArticles,createNewArticle,showCityArticles,showCountryArticles,showContinentArticles,showCategoryArticles,searchArticles,
-    showTrendingArticles, showQueryArticles};
+    showTrendingArticles, showQueryArticles, showTopCategorysArticles};
     // showSuggestedArticles
