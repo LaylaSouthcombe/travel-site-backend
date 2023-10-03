@@ -2,7 +2,7 @@ const Article = require('../models/Article')
                     
 //show specific article
 async function showSpecificArticle(req, res) {
-    try {   
+    try {
         const article = await Article.findById(req.params.id)
         res.status(200).json(article)   
     } catch (err) {
@@ -70,6 +70,16 @@ async function showCategoryArticles(req, res) {
     }
 }
 
+//show trip-planning articles
+async function showTripPlanningArticles(req, res) {
+    try {
+        const articles = await Article.showTripPlanningArticles()
+        res.status(200).json(articles)
+    } catch (err) {
+        res.status(400).send({err})
+    }
+}
+
 //show top articles for all categories
 async function showTopCategorysArticles(req, res) {
     try {
@@ -92,7 +102,6 @@ async function showQueryArticles(req, res) {
 //article search results
 async function searchArticles(req, res) {
     try {
-        console.log(req.headers.query)
         const article = await Article.searchArticles(req.headers.query)
         res.status(200).json(article)
     } catch (err) {
@@ -110,6 +119,16 @@ async function showTrendingArticles(req, res) {
     }
 }
 
+//show most read articles
+async function showMostReadArticles(req, res) {
+    try {
+        const articles = await Article.showMostReadArticles()
+        res.status(200).json(articles)
+    } catch (err) {
+        res.status(400).send({err})
+    }
+}
+
 //show suggested articles for a user
 // async function showSuggestedArticles(req, res) {
 //     try {
@@ -120,6 +139,6 @@ async function showTrendingArticles(req, res) {
 //     }
 // }
 
-module.exports = {showSpecificArticle,showAllArticles,createNewArticle,showCityArticles,showCountryArticles,showContinentArticles,showCategoryArticles,searchArticles,
-    showTrendingArticles, showQueryArticles, showTopCategorysArticles};
+module.exports = {showSpecificArticle,showAllArticles,createNewArticle,showCityArticles,showCountryArticles,showContinentArticles, showCategoryArticles, showTripPlanningArticles, searchArticles,
+    showTrendingArticles, showQueryArticles, showTopCategorysArticles, showMostReadArticles};
     // showSuggestedArticles

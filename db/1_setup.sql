@@ -7,7 +7,7 @@ CREATE TABLE articles (
     city varchar NOT NULL,
     country varchar NOT NULL,
     continent varchar NOT NULL,
-    trip_categories varchar NOT NULL,
+    article_category varchar NOT NULL,
     keywords varchar NOT NULL,
     hour_24_views int NOT NULL,
     all_time_views int NOT NULL

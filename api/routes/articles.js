@@ -11,10 +11,13 @@ router.get('/city/:city', articlesController.showCityArticles);
 router.get('/country/:country', articlesController.showCountryArticles);
 router.get('/continent/:continent', articlesController.showContinentArticles);
 router.get('/category/:category', articlesController.showCategoryArticles);
-router.get('/categories/', articlesController.showTopCategorysArticles);
+router.get('/categories', articlesController.showTopCategorysArticles);
+router.get('/trip-planning', articlesController.showTripPlanningArticles);
 router.get('/queryterm', articlesController.showQueryArticles);
 router.get('/search', articlesController.searchArticles);
 router.get('/trending', articlesController.showTrendingArticles);
+router.get('/most-read', articlesController.showMostReadArticles);
+
 // router.get('/suggested', articlesController.showSuggestedArticles);
 
 module.exports = router;

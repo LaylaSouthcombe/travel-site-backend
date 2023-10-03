@@ -1,12 +1,12 @@
 const db = require ('../dbConfig/init')
 const { removeStopwords } = require('stopword')
 
-
 class article {
     constructor(data){
         this.id = data.id
         this.title = data.title
         this.body = data.body
+        this.article_genre = data.article_genre
         this.city = data.city
         this.country = data.country
         this.continent = data.continent
@@ -24,98 +24,143 @@ class article {
         return new Promise (async (resolve, reject) => {
             try {
                 const articlesData = await db.query(`SELECT * FROM articles ORDER BY RANDOM ();`)
-                const articles = articlesData.rows.map(d => new article(d))
-                resolve(articles);
+                if(articlesData.rows.length > 0){
+                    let articles = articlesData.rows.map(d => new article(d))
+                    resolve (articles)
+                } else {
+                    resolve(undefined)
+                }
             } catch (err) {
                 reject("Error retrieving articles")
             }
         })
     }
     //creates a new article
-    static async createNewArticle({title, body, city, country, continent, article_category, keywords, feature_img_html, feature_img_url}){
+    static async createNewArticle({title, body, article_genre, city, country, continent, article_category, keywords, feature_img_html, feature_img_url}){
         return new Promise (async (resolve, reject) => {
             try {
-                let newArticle = await db.query(`INSERT INTO articles (title, body, city, country, continent, article_category, keywords, hour_24_views, all_time_views, feature_img_html, feature_img_url) VALUES ($1, $2, $3, $4, $5, $6, $7, 0, 0, $8, $9) RETURNING *;`, [ title, body, city, country, continent, article_category, keywords, feature_img_html, feature_img_url])
-                console.log(newArticle.rows[0])
+                let newArticle = await db.query(`INSERT INTO articles (title, body, article_genre, city, country, continent, article_category, keywords, hour_24_views, all_time_views, feature_img_html, feature_img_url) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 0, 0, $9, $10) RETURNING *;`, [ title, body, article_genre, city, country, continent, article_category, keywords, feature_img_html, feature_img_url])
                 resolve(newArticle.rows[0])
             }catch(err){
-                reject("Error creating new article");
+                reject("Error creating new article")
             }
         })
     }
     //shows articles in a certain city
-    static showCityArticles(city) {
+    static async showCityArticles(city) {
         return new Promise (async (resolve, reject) => {
             try {
-                let articlesData = await db.query(`SELECT * FROM articles WHERE city ILIKE '%${city}%';`); 
-                const articles = articlesData.rows.map(d => new article(d))
-                resolve(articles);
+                let articlesData = await db.query(`SELECT * FROM articles WHERE city ILIKE '%${city}%' ORDER BY RANDOM ();`)
+                if(articlesData.rows.length > 0){
+                    let articles = articlesData.rows.map(d => new article(d))
+                    resolve (articles)
+                } else {
+                    resolve(undefined)
+                }
             } catch (err) {
-                reject('Could not retrieve articles for that city');
+                reject('Could not retrieve articles for that city')
             }
-        });
+        })
     }
     //shows articles in a certain country
-    static showCountryArticles(country) {
+    static async showCountryArticles(country) {
         return new Promise (async (resolve, reject) => {
             try {
-                let articlesData = await db.query(`SELECT * FROM articles WHERE country ILIKE '%${country}%';`); 
-                const articles = articlesData.rows.map(d => new article(d))
-                resolve(articles);
+                if(country.includes('-')){
+                    country = country.replace(/-/g, ' ')
+                }
+                let articlesData = await db.query(`SELECT * FROM articles WHERE country ILIKE '%${country}%' ORDER BY RANDOM ();`)
+                if(articlesData.rows.length > 0){
+                    let articles = articlesData.rows.map(d => new article(d))
+                    resolve (articles)
+                } else {
+                    resolve(undefined)
+                }
             } catch (err) {
-                reject('Could not retrieve articles for that country');
+                reject('Could not retrieve articles for that country')
             }
-        });
+        })
     }
     //shows articles in a certain continent
-    static showContinentArticles(continent) {
+    static async showContinentArticles(continent) {
         return new Promise (async (resolve, reject) => {
             try {
-                let articlesData = await db.query(`SELECT * FROM articles WHERE continent ILIKE '%${continent}%';`); 
-                const articles = articlesData.rows.map(d => new article(d))
-                resolve(articles);
+                let articlesData = await db.query(`SELECT * FROM articles WHERE continent ILIKE '%${continent}%' ORDER BY RANDOM ();`)
+                if(articlesData.rows.length > 0){
+                    let articles = articlesData.rows.map(d => new article(d))
+                    resolve (articles)
+                } else {
+                    resolve(undefined)
+                }
             } catch (err) {
-                reject('Could not retrieve articles for that continent');
+                reject('Could not retrieve articles for that continent')
             }
-        });
+        })
     }
     //shows articles in a certain category
-    static showCategoryArticles(category) {
+    static async showCategoryArticles(category) {
         return new Promise (async (resolve, reject) => {
             try {
-                let articlesData = await db.query(`SELECT * FROM articles WHERE article_category ILIKE '%${category}%' ORDER BY hour_24_views DESC;`); 
-                const articles = articlesData.rows.map(d => new article(d))
-                resolve(articles);
+                let articlesData = await db.query(`SELECT * FROM articles WHERE article_category ILIKE '%${category}%'  ORDER BY RANDOM ();`)
+                if(articlesData.rows.length > 0){
+                    let articles = articlesData.rows.map(d => new article(d))
+                    resolve (articles)
+                } else {
+                    resolve(undefined)
+                }
             } catch (err) {
-                reject('Could not retrieve articles for that category');
+                reject('Could not retrieve articles for that category')
             }
-        });
+        })
+    }
+    //shows trip planning articles
+    static async showTripPlanningArticles() {
+        return new Promise (async (resolve, reject) => {
+            try {
+                let articlesData = await db.query(`SELECT * FROM articles WHERE article_category ILIKE '%planning%' ORDER BY hour_24_views DESC;`)
+                if(articlesData.rows.length > 0){
+                    let articles = articlesData.rows.map(d => new article(d))
+                    resolve (articles)
+                } else {
+                    resolve(undefined)
+                }
+            } catch (err) {
+                reject('Could not retrieve trip planning articles')
+            }
+        })
     }
     //shows top articles in each category
-    static showTopCategorysArticles() {
+    static async showTopCategorysArticles() {
         return new Promise (async (resolve, reject) => {
             try {
-                let categories = ["Relaxation", "Luxury", "Nature", "Food", "City Break", "Budget Friendly", "Art & Culture", "Adventure"]
-                let articlesObject = {}
+                let articlesObject = {
+                    "Relaxation": [],
+                    "Luxury": [],
+                    "Nature": [],
+                    "Food": [],
+                    "City Break": [],
+                    "Budget Friendly": [],
+                    "Art & Culture": [],
+                    "Adventure": [],
+                    "Trip Planning": []
+                }
                 const getDbArticles = async (category) => {
-                    let returnedArticles = await db.query(`SELECT * FROM articles WHERE article_category ILIKE '%${category}%' ORDER BY hour_24_views DESC LIMIT 4;`);
+                    let returnedArticles = await db.query(`SELECT * FROM articles WHERE article_category ILIKE '%${category}%' ORDER BY hour_24_views DESC LIMIT 5;`)
                     articlesObject[category] = returnedArticles.rows.map(d => new article(d))
                 }
-                categories.forEach(category => {
-                    getDbArticles(category)
-                })
-                console.log(articlesObject)
-                resolve(articlesObject);
+                for (const category of Object.keys(articlesObject)) {
+                    await getDbArticles(category)
+                }
+                resolve(articlesObject)
             } catch (err) {
-                reject('Could not retrieve articles for that category');
+                reject('Could not retrieve articles for that category')
             }
-        });
+        })
     }
     //shows articles that meet query request
-    static showQueryArticles(query) {
+    static async showQueryArticles(query) {
         return new Promise (async (resolve, reject) => {
             try {
-                console.log(query)
                 let searchAreas = []
                 if(query.country.length > 0){
                     searchAreas.push('country')
@@ -141,7 +186,7 @@ class article {
                     }
                 }
 
-                let articlesData = await db.query(`SELECT * FROM articles WHERE${searchQuery.replace("category", "article_category")}`); 
+                let articlesData = await db.query(`SELECT * FROM articles WHERE${searchQuery.replace("category", "article_category")}`)
 
                 for(let i = 0; i < articlesData.rows.length; i++){
                     if(!articleIds.includes(articlesData.rows[i].id)){
@@ -149,15 +194,14 @@ class article {
                         articleIds.push(articlesData.rows[i].id) 
                     }
                 }
-
-                resolve(articlesSearchResults);
+                resolve(articlesSearchResults)
             } catch (err) {
-                reject('Could not retrieve articles for that search term');
+                reject('Could not retrieve articles for that search term')
             }
-        });
+        })
     }
     //shows articles that include the search term
-    static searchArticles(searchTerm) {
+    static async searchArticles(searchTerm) {
         return new Promise (async (resolve, reject) => {
             try {
                 let articlesSearchResults = []
@@ -174,7 +218,7 @@ class article {
                         return sqlQueryArray.join(" ")
                     }
                     let sqlQuery = generateSQLQuery(searchArrayWithoutStopWords)
-                    let articlesData = await db.query(`SELECT * FROM articles WHERE ${sqlQuery}`);
+                    let articlesData = await db.query(`SELECT * FROM articles WHERE ${sqlQuery}`)
                     for(let i = 0; i < articlesData.rows.length; i++){
                         let numberOfWordsBodyContains = 0
                         for(let j = 0; j < searchArrayWithoutStopWords.length; j++){
@@ -185,24 +229,44 @@ class article {
                         articlesData.rows[i].numberOfWordsBodyContains = numberOfWordsBodyContains
                         articlesSearchResults.push(articlesData.rows[i])
                     }
-                articlesSearchResults.sort((a,b) => b.numberOfWordsBodyContains - a.numberOfWordsBodyContains);
-                resolve(articlesSearchResults);
+                articlesSearchResults.sort((a,b) => b.numberOfWordsBodyContains - a.numberOfWordsBodyContains)
+                resolve(articlesSearchResults)
             } catch (err) {
-                reject('Could not retrieve articles for that search term');
+                reject('Could not retrieve articles for that search term')
             }
-        });
+        })
     }
     //search for articles with highest views in last 24 hours
-    static showTrendingArticles() {
+    static async showTrendingArticles() {
         return new Promise (async (resolve, reject) => {
             try {
-                let articleData = await db.query(`SELECT * FROM articles ORDER BY hour_24_views DESC LIMIT 4;`); 
-                let articles = articleData.rows.map(x => new article(x));
-                resolve (articles);
+                let articleData = await db.query(`SELECT * FROM articles ORDER BY hour_24_views DESC LIMIT 5;`)
+                if(articleData.rows.length > 0){
+                    let articles = articleData.rows.map(x => new article(x))
+                    resolve (articles)
+                } else {
+                    resolve(undefined)
+                }
             } catch (err) {
-                reject('Trending articles not found');
+                reject('Trending articles not found')
             }
-        });
+        })
+    }
+    //search for articles with highest views in last 24 hours
+    static async showMostReadArticles() {
+        return new Promise (async (resolve, reject) => {
+            try {
+                let articleData = await db.query(`SELECT * FROM articles ORDER BY all_time_views DESC LIMIT 5;`)
+                if(articleData.rows.length > 0){
+                    let articles = articleData.rows.map(x => new article(x))
+                    resolve (articles)
+                } else {
+                    resolve(undefined)
+                }
+            } catch (err) {
+                reject('Trending articles not found')
+            }
+        })
     }
     //not done - add in code that finds similar posts to a users views, but if no views show random posts in top 100 viewed today
     // static showSuggestedArticles(id) {
@@ -216,20 +280,24 @@ class article {
     //         }
     //     });
     // }
+
     //finds post with specific id
-    static findById(id) {
+    static async findById(id) {
         return new Promise (async (resolve, reject) => {
             try {
-                let articleData = await db.query(`SELECT * FROM articles WHERE id = $1;`, [ parseInt(id) ]); 
-                let foundArticle = new article(articleData.rows[0]);
-                await db.query(`UPDATE articles SET hour_24_views = ${foundArticle.hour_24_views + 1}, all_time_views = ${foundArticle.all_time_views + 1} WHERE id = ${id};`)
-                console.log(foundArticle)
-                resolve (foundArticle);
+                let articleData = await db.query(`SELECT * FROM articles WHERE id = $1;`, [ parseInt(id)])
+                if(articleData.rows.length){
+                    let foundArticle = new article(articleData.rows[0])
+                    await db.query(`UPDATE articles SET hour_24_views = ${foundArticle.hour_24_views + 1}, all_time_views = ${foundArticle.all_time_views + 1} WHERE id = ${id};`)
+                    resolve(foundArticle)
+                } else {
+                    resolve(undefined)
+                }
             } catch (err) {
-                reject('Article not found');
+                reject(err)
             }
-        });
+        })
     }
 }
 
-module.exports = article;
+module.exports = article
