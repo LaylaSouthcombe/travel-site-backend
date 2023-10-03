@@ -2,17 +2,12 @@
 Welcome to the backend of Sojo Travels, the heart of our travel website! This backend server serves as the API responsible for retrieving travel articles from a PostgreSQL database and providing data to the frontend.
 
 ## Project Overview
-Sojo Travels is a full-stack web application that offers a curated collection of travel articles focusing on destinations across Europe. The backend of the project is hosted on Glitch and interacts with a PostgreSQL database to deliver travel content to the frontend.
+Sojo Travels is a full-stack web application that offers a curated collection of travel articles focusing on destinations across Europe. The backend of the project is hosted on Railway and interacts with a PostgreSQL database to deliver travel content to the frontend.
 
 ## Features
 **RESTful API:** The backend provides a RESTful API to retrieve travel articles based on user requests.
 
 **Database Integration:** It connects to a PostgreSQL database to fetch travel articles, including article titles, content, countries, and categories.
-
-## Getting Started
-To get started with the Sojo Travels backend on Glitch:
-
-Visit the Glitch project at [https://radical-cool-jar.glitch.me](https://radical-cool-jar.glitch.me).
 
 ## Database
 Sojo Travels backend relies on a PostgreSQL database to store and manage travel articles.
